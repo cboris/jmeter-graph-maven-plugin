@@ -8,8 +8,8 @@
         <version>7</version>
     </parent>
 
-    <groupId>de.codecentric</groupId>
-    <artifactId>jmeter-graph-maven-plugin</artifactId>
+    <groupId>com.github.cboris</groupId>
+    <artifactId>jmeter-graph2-maven-plugin</artifactId>
     <version>0.1.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
     <name>JMeter Graphs Maven Plugin</name>
@@ -179,12 +179,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--  
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.4</version>
                 <executions>
                     <execution>
+                    	<configuration>
+                    		
+                    		<useAgent>true</useAgent>
+                    	</configuration>
                         <id>sign-artifacts</id>
                         <phase>verify</phase>
                         <goals>
@@ -192,7 +197,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
@@ -214,11 +219,11 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+          <!--    <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.4.2</version>
-            </plugin>
+            </plugin> -->
         </plugins>
     </build>
 </project>

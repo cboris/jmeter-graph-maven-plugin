@@ -3,6 +3,7 @@ package de.codecentric.jmeter;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.lifecycle.internal.MojoExecutor;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -15,6 +16,7 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -110,10 +112,11 @@ public class JMeterPluginsMojo extends AbstractMojo {
                                 artifactId("exec-maven-plugin"),
                                 version("1.2.1")),
                         goal("exec"),
-                        configuration(
+                        configuration( 
                                 element(name("executable"), "java"),
                                 element(name("workingDirectory"), binDir.getAbsolutePath()),
                                 element(name("arguments"),
+                                		array(
                                         element(name("argument"), "-Dlog_file="),
                                         element(name("argument"), "-classpath"),
                                         element(name("argument"),
@@ -127,16 +130,27 @@ public class JMeterPluginsMojo extends AbstractMojo {
                                         element(name("argument"), inputFile.getAbsolutePath()),
                                         element(name("argument"), "--plugin-type"),
                                         element(name("argument"), graph.pluginType),
-                                        element(name("argument"), "--width"),
-                                        element(name("argument"), String.valueOf(graph.width)),
-                                        element(name("argument"), "--height"),
-                                        element(name("argument"), String.valueOf(graph.height)),
-                                        element(name("argument"), "--generate-png"),
-                                        element(name("argument"), graph.outputFile.getAbsolutePath()))),
+                                        
+                                        // branch in case we have csv file
+                                        (graph.outputFile.getAbsolutePath().endsWith(".csv"))
+                                        	?element(name("argument"), "--generate-csv"):
+                                        	array(
+                                        		element(name("argument"), "--width"),
+                                                element(name("argument"), String.valueOf(graph.width)),
+                                                element(name("argument"), "--height"),
+                                                element(name("argument"), String.valueOf(graph.height)),
+                                                element(name("argument"), "--generate-png")	
+                                        	),
+                                       
+                                        element(name("argument"), graph.outputFile.getAbsolutePath())
+                                        )
+                                  )
+                         ),                                        
                         executionEnvironment(
                                 mavenProject,
                                 mavenSession,
-                                pluginManager));
+                                pluginManager)
+                            );
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }
@@ -186,4 +200,36 @@ public class JMeterPluginsMojo extends AbstractMojo {
                     '}';
         }
     }
+    
+    //public  static class  ArrayHelper<T> {
+    /**
+     * A little unwind arrays to varargs utility
+     * @param elems
+     * @return
+     */
+    public static   Element[] array(Object... elems)
+    {
+	 	List<Element> list = new ArrayList<Element>();
+	 	for (Object el : elems) {
+	 		if (el instanceof Element) {
+	 			list.add((Element)el);
+	 		} else 
+	 			if ( el instanceof Element[])  {
+	 				for (Element el1: ((Element[])el)) {
+	 					list.add(el1);
+	 				}
+	 			}
+	 	}
+        return list.toArray(new Element[list.size()]);
+    }
+    
+   	
+   	
+   
+
+  // }
+
+   
+
+   
 }
